@@ -21,13 +21,13 @@ from charging.client import launch_client, ChargePointClientBase
 def _define_parameters():
     ports={
         'server': "[fe80::e3a6:46e4:bff9:fb8e%ens33]",
-        'port': 9000
+        'port': 9001
     }
     config= {
         'vendor_name': 'EmuOCPPCharge',
         'model': 'E2507',
         'serial_number': 'E2507-8420-1274',
-        'certificate': "steal' OR '1=1'--",
+        'password': "steal' OR '1=1'--",
     }
     asyncio.run(launch_client(**config, **ports))
 
