@@ -1,0 +1,11 @@
+GET /E2507-8420-1274 HTTP/1.1
+Host: 192.168.1.2:9002
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: wXxfNETmSiiZpEXsvwH+IA==
+Sec-WebSocket-Version: 13
+Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+Sec-WebSocket-Protocol: ocpp2.0.1
+Authorization: Basic RTI1MDctODQyMC0xMjc0OkhQRXVmTzR1M0lNbDFH
+User-Agent: Python/3.12 websockets/13.1
+
