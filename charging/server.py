@@ -38,7 +38,7 @@ import requests
 logging.basicConfig(level=logging.INFO)
 
 CERTIFICATE_PATH = './charging/installedCertificates/server/certificate_server.pem'
-CERTIFICATE_KEY_PATH =  './charging/installedCertificates/server/private_key_server.pem'
+CERTIFICATE_KEY_PATH =  './charging/installedCertificates/server/private_key.pem'
 
 
 # Will be loaded from config.yaml on startup
@@ -353,14 +353,14 @@ async def main():
     context2 = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context2.load_cert_chain(CERTIFICATE_PATH, CERTIFICATE_KEY_PATH)
     context2.minimum_version = ssl.TLSVersion.TLSv1_2
-    context2.load_verify_locations('./charging/installedCertificates/server/root/eurecom-ttp_Cert.pem')
+    context2.load_verify_locations('./charging/installedCertificates/server/root/emuocpp_ttp_cert.pem')
     context2.check_hostname = False 
     context2.verify_mode = ssl.CERT_NONE 
 
     context3 = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     context3.load_cert_chain(CERTIFICATE_PATH, CERTIFICATE_KEY_PATH)
     context3.minimum_version = ssl.TLSVersion.TLSv1_2
-    context3.load_verify_locations(cafile='./charging/installedCertificates/server/root/eurecom-ttp_Cert.pem')
+    context3.load_verify_locations(cafile='./charging/installedCertificates/server/root/emuocpp_ttp_cert.pem')
     context3.check_hostname = True 
     context3.verify_mode = ssl.CERT_REQUIRED
 
@@ -484,17 +484,17 @@ class ChargePointServerBase:
     async def _check_events(self, interval: int =1):
         while True:
             if self.csr_data != None:
-                # Load the eurecom-ttp private key and certificate
-                with open('eurecom-ttp_Key.pem', 'rb') as f:
+                # Load the emuocpp-ttp private key and certificate
+                with open('emuocpp_ttp_key.pem', 'rb') as f:
                     ca_private_key = serialization.load_pem_private_key(f.read(), password=None, backend=default_backend())
 
-                with open('eurecom-ttp_Cert.pem', 'rb') as f:
+                with open('emuocpp_ttp_cert.pem', 'rb') as f:
                     ca_cert = x509.load_pem_x509_certificate(f.read(), default_backend())
 
                 cert = (
                     x509.CertificateBuilder()
                     .subject_name(self.csr_data.subject)
-                    .issuer_name(ca_cert.subject)  # Use eurecom-ttp as the issuer
+                    .issuer_name(ca_cert.subject)  # Use emuocpp-ttp as the issuer
                     .public_key(self.csr_data.public_key())  # The public key of the client/server
                     .serial_number(x509.random_serial_number())
                     .not_valid_before(datetime.now(timezone.utc))
@@ -502,7 +502,7 @@ class ChargePointServerBase:
                     .add_extension(
                         x509.BasicConstraints(ca=False, path_length=None), critical=True
                     )
-                    .sign(ca_private_key, hashes.SHA256(), default_backend())  # Sign using eurecom-ttp's private key
+                    .sign(ca_private_key, hashes.SHA256(), default_backend())  # Sign using emuocpp-ttp's private key
                 )
                 certificate_pem = cert.public_bytes(encoding=serialization.Encoding.PEM).decode()
                 await self.send_certificate_signed(certificate_pem)
@@ -1021,7 +1021,7 @@ async def on_operator(websocket, path):
             var = False
             for cp_id, cp_ws, version in connected_clients:
                 if cp_id == serial:
-                    res = await cp_ws.send_install_certificate('CSMSRootCertificate' if version != 'v1.6' else 'CentralSystemRootCertificate', load_certificate('./charging/installedCertificates/server/root/eurecom-ttp_Cert.pem'), version)
+                    res = await cp_ws.send_install_certificate('CSMSRootCertificate' if version != 'v1.6' else 'CentralSystemRootCertificate', load_certificate('./charging/installedCertificates/server/root/emuocpp_ttp_cert.pem'), version)
                     if res:
                         await websocket.send(f"Certificate installed into: {serial}")
                     else:
@@ -1151,7 +1151,7 @@ async def on_connect(websocket, path):
             cert_data = get_data_from_cert(client_cert_der)
             
             # Reject the connection if the CN is not valid
-            if cert_data['commonName'] not in get_cps() or cert_data['commonName'] != path.strip("/") or cert_data['organizationName'] != 'eurecom.fr':
+            if cert_data['commonName'] not in get_cps() or cert_data['commonName'] != path.strip("/") or cert_data['organizationName'] != 'EmuOCPP':
                 print(f"Unauthorized client, closing connection.")
                 await websocket.close()
                 return

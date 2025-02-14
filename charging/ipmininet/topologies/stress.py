@@ -4,7 +4,7 @@ import random
 
 config = {}
 
-cs = 150
+cs = 10
 csms = math.ceil(cs/100)
 c_switches = math.ceil(cs/4)
 c_routers = math.ceil(c_switches/4)

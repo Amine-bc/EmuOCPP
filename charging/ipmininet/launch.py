@@ -146,7 +146,7 @@ def run_topology(topology_module_name):
                     os.mkdir(f'./charging/installedCertificates/{host.SN}')
                     os.mkdir(f'./charging/installedCertificates/{host.SN}/root')
                     os.popen(f'python3 ./charging/certificateCreation.py -id {host.SN} -type client')
-                    os.popen(f'cp eurecom-ttp_Cert.pem ./charging/installedCertificates/{host.SN}/root')
+                    os.popen(f'cp emuocpp_ttp_cert.pem ./charging/installedCertificates/{host.SN}/root')
                     time.sleep(1)
                     while True:
                         try:
@@ -162,7 +162,7 @@ def run_topology(topology_module_name):
                     if 2 in secProfiles and not 3 in secProfiles:
                         os.mkdir(f'./charging/installedCertificates/{host.SN}')
                         os.mkdir(f'./charging/installedCertificates/{host.SN}/root')
-                        os.popen(f'cp eurecom-ttp_Cert.pem ./charging/installedCertificates/{host.SN}/root')
+                        os.popen(f'cp emuocpp_ttp_cert.pem ./charging/installedCertificates/{host.SN}/root')
                     auth_key = generate_random_key() if host.version == 'v1.6' else generate_random_password()
                     add_user(user= host.SN, password=auth_key)
                     time.sleep(0.5)

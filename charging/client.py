@@ -66,7 +66,7 @@ parser.add_argument('-ports', type=int, required=False, nargs='+', help="Ports o
 parser.add_argument('-version', type=str, required=False, help="OCPP version -> 'v2.0.1', 'v2.0' or 'v1.6'")
 parser.add_argument('-sec_profile', type=int, required=False, help="Security profile (e.g., 2)")
 parser.add_argument('-auth_key', type=str, required=False, help="Authorization key (e.g., HPEufO4u3IMl1G)")
-parser.add_argument('-vendor_name', type=str, required=False, help="Vendor name (e.g., EurecomCharge)")
+parser.add_argument('-vendor_name', type=str, required=False, help="Vendor name (e.g., EmuOCPPCharge)")
 parser.add_argument('-model', type=str, required=False, help="Model (e.g., E2507)")
 parser.add_argument('-serial_number', type=str, required=False, help="Serial number (e.g., E2507-8420-1274)") 
 parser.add_argument('-url', type=str, required=False, help="URL attached to the servers if there is a DNS server (e.g ocpp-simulator.com)") 
@@ -438,27 +438,12 @@ class ChargePointClientBase:
         # Generate a private key using ECDSA (Elliptic Curve Digital Signature Algorithm)
         private_key = ec.generate_private_key(ec.SECP256R1())   
 
-        # Generate the corresponding public key
-        public_key = private_key.public_key()
-
-        # Save the private key to a PEM file
-        pem_private_key = private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        )
-
         with open(f"./charging/installedCertificates/{SERIAL_NUMBER}/private_key.pem", "wb") as f:
-            f.write(pem_private_key)
-
-        # Save the public key to a PEM file
-        pem_public_key = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
-
-        with open(f"./charging/installedCertificates/{SERIAL_NUMBER}/public_key.pem", "wb") as f:
-            f.write(pem_public_key)
+            f.write(private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption()
+            ))
 
         print("Key pair generated and saved as 'private_key.pem' and 'public_key.pem'")
 
@@ -690,20 +675,15 @@ class ChargePointClientBase:
                     password=None,
                     backend=default_backend()
                 )
-            with open(f"./charging/installedCertificates/{SERIAL_NUMBER}/public_key.pem", "rb") as key_file:
-                public_key = serialization.load_pem_public_key(
-                    key_file.read(),
-                    backend=default_backend()
-                )
         except Exception as e:
             print(f'There is a problem with CS public/private key: {e}')
             return
         
         subject = x509.Name([
-            x509.NameAttribute(NameOID.COUNTRY_NAME, u"FR"),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"France"),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, u"Sophia-Antipolis"),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'eurecom.fr'),
+            x509.NameAttribute(NameOID.COUNTRY_NAME, u"AN"),
+            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Anonymous"),
+            x509.NameAttribute(NameOID.LOCALITY_NAME, u"Anonymous"),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'EmuOCPP'),
             x509.NameAttribute(NameOID.COMMON_NAME, SERIAL_NUMBER),
         ])
 
@@ -1091,7 +1071,7 @@ async def launch_client(
             context.load_verify_locations(cafile=full_path)
 
         context.verify_mode = ssl.CERT_REQUIRED # In a real environment it must be ssl.CERT_REQ
-        expected_fqdn = "eurecom.fr"
+        expected_fqdn = "emuocpp.com"
         context.check_hostname = True
         sslC = context
     elif secProf == 3:
@@ -1108,7 +1088,7 @@ async def launch_client(
         context.check_hostname = True # In a real environment it must be True
         context.verify_mode = ssl.CERT_REQUIRED # In a real environment it must be ssl.CERT_REQ
         context.load_cert_chain(certfile=CERTIFICATE_PATH, keyfile=CERTIFICATE_KEY_PATH)
-        expected_fqdn = "eurecom.fr"
+        expected_fqdn = "emuocpp.com"
         sslC = context
 
     try:

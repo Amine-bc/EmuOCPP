@@ -1,10 +1,10 @@
 accepted_chargers:
 - model: E2507
   serial_number_regex: ^E2507-[0-9]{4}-[0-9]{4}$
-  vendor_name: EurecomCharge
+  vendor_name: EmuOCPPCharge
 - model: E2508
   serial_number_regex: ^E2508-[0-9]{4}-[0-9]{4}$
-  vendor_name: EurecomCharge
+  vendor_name: EmuOCPPCharge
 accepted_tokens:
 - id_token: '11223344'
   type: ISO14443
@@ -13,7 +13,7 @@ accepted_tokens:
 - id_token: '1122334455667788'
   type: ISO15693
 dns: null
-ip: fe80::e3a6:46e4:bff9:fb8e%ens33
+ip: fc00:0:1::2
 port0: 9000
 port1: 9001
 port2: 9002

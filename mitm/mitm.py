@@ -31,9 +31,6 @@ def generate_key_pair(serial):
         # Generate a private key using ECDSA (Elliptic Curve Digital Signature Algorithm)
         private_key = ec.generate_private_key(ec.SECP256R1())   
 
-        # Generate the corresponding public key
-        public_key = private_key.public_key()
-
         # Save the private key to a PEM file
         pem_private_key = private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
@@ -43,15 +40,6 @@ def generate_key_pair(serial):
 
         with open(f"./mitm/certificates/{serial}/private_key.pem", "wb") as f:
             f.write(pem_private_key)
-
-        # Save the public key to a PEM file
-        pem_public_key = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
-
-        with open(f"./mitm/certificates/{serial}/public_key.pem", "wb") as f:
-            f.write(pem_public_key)
 
         print(f"Key pair generated and saved as 'private_key_{serial}.pem' and 'public_key.pem'")
 
@@ -182,7 +170,7 @@ def websocket_message(flow: http.HTTPFlow):
                 cert = (
                     x509.CertificateBuilder()
                     .subject_name(csr_data.subject)
-                    .issuer_name(ca_cert.subject)  # Use eurecom-ttp as the issuer
+                    .issuer_name(ca_cert.subject)  # Use emuocpp-ttp as the issuer
                     .public_key(csr_data.public_key())  # The public key of the client/server
                     .serial_number(x509.random_serial_number())
                     .not_valid_before(datetime.now(timezone.utc))
@@ -190,7 +178,7 @@ def websocket_message(flow: http.HTTPFlow):
                     .add_extension(
                         x509.BasicConstraints(ca=False, path_length=None), critical=True
                     )
-                    .sign(ca_private_key, hashes.SHA256(), default_backend())  # Sign using eurecom-ttp's private key
+                    .sign(ca_private_key, hashes.SHA256(), default_backend())  # Sign using emuocpp-ttp's private key
                 )
                 client_cert = cert.public_bytes(encoding=serialization.Encoding.PEM).decode()
                 print("====================================================\n")
@@ -258,20 +246,15 @@ def websocket_message(flow: http.HTTPFlow):
                         password=None,
                         backend=default_backend()
                     )
-                with open(f"./mitm/certificates/{flow.request.path_components[0]}/public_key.pem", "rb") as key_file:
-                    public_key = serialization.load_pem_public_key(
-                        key_file.read(),
-                        backend=default_backend()
-                    )
             except Exception as e:
                 print(f'There is a problem with CS public/private key: {e}')
                 return
             
             subject = x509.Name([
-                x509.NameAttribute(NameOID.COUNTRY_NAME, u"FR"),
-                x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"France"),
-                x509.NameAttribute(NameOID.LOCALITY_NAME, u"Sophia-Antipolis"),
-                x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'eurecom.fr'),
+                x509.NameAttribute(NameOID.COUNTRY_NAME, u"AN"),
+                x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Anonymous"),
+                x509.NameAttribute(NameOID.LOCALITY_NAME, u"Anonymous"),
+                x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'EmuOCPP'),
                 x509.NameAttribute(NameOID.COMMON_NAME, flow.request.path_components[0]),
             ])
 
