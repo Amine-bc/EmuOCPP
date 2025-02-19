@@ -681,6 +681,14 @@ class ChargePointServerBase:
             self.SECURITY_PROFILE = 2
         elif port == PORT3:
             self.SECURITY_PROFILE = 3
+        elif port == PORT4:
+            self.SECURITY_PROFILE = 0
+        elif port == PORT5:
+            self.SECURITY_PROFILE = 1
+        elif port == PORT6:
+            self.SECURITY_PROFILE = 2
+        elif port == PORT7:
+            self.SECURITY_PROFILE = 3
 
         if VERSION == 'v1.6':
             logging.info(f"Got boot notification from {charge_point_serial_number} and security profile {self.SECURITY_PROFILE}")

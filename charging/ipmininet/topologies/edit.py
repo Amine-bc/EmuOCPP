@@ -51,6 +51,11 @@ def find_element_by_name(name):
             for element_key, element_data in config['switches'].items():
                 if element_data['name'] == name:
                     return element_key
+    if 'hosts' in config.keys():
+        if config['hosts'] != None:
+            for element_key, element_data in config['hosts'].items():
+                if element_data['name'] == name:
+                    return element_key
     if 'dns' in config.keys():
         if config['dns'] != None:
             for element_key, element_data in config['dns'].items():
@@ -66,7 +71,8 @@ class DragDropCanvas(tk.Canvas):
         self.server_img = self.load_and_resize_image("./charging/ipmininet/pictures/server.png", 75, 75)   
         self.router_img = self.load_and_resize_image("./charging/ipmininet/pictures/router.png", 75, 75)  
         self.switch_img = self.load_and_resize_image("./charging/ipmininet/pictures/switch.png", 75, 75)   
-        self.dns_image = self.load_and_resize_image("./charging/ipmininet/pictures/dns.png", 75, 75)   
+        self.dns_image = self.load_and_resize_image("./charging/ipmininet/pictures/dns.png", 75, 75)
+        self.host_image = self.load_and_resize_image("./charging/ipmininet/pictures/host.png", 75, 75)     
                                                     
         self.parent = parent
         self.config(width=1000, height=700, bg="white")
@@ -115,6 +121,8 @@ class DragDropCanvas(tk.Canvas):
             icon = self.create_image(x, y, image=self.switch_img, anchor=tk.CENTER, tags=name)
         elif element_type == "dns":
             icon = self.create_image(x, y, image=self.dns_image, anchor=tk.CENTER, tags=name)
+        elif element_type == "host":
+            icon = self.create_image(x, y, image=self.host_image, anchor=tk.CENTER, tags=name)
 
         label = self.create_text(x, y+50, text=name, tags=name)
         self.elements[name] = (icon, label, [])
@@ -207,12 +215,14 @@ class DragDropCanvas(tk.Canvas):
                         config['servers'].get(find_element_by_name(element1)) or 
                         config['routers'].get(find_element_by_name(element1)) or
                         config['switches'].get(find_element_by_name(element1)) or
-                        config['dns'].get(find_element_by_name(element1))).get('name')
+                        config['dns'].get(find_element_by_name(element1)) or
+                        config['hosts'].get(find_element_by_name(element1))).get('name')
                 name2 = (config['clients'].get(find_element_by_name(element2)) or 
                         config['servers'].get(find_element_by_name(element2)) or 
                         config['routers'].get(find_element_by_name(element2)) or
                         config['switches'].get(find_element_by_name(element2)) or
-                        config['dns'].get(find_element_by_name(element2))).get('name')
+                        config['dns'].get(find_element_by_name(element2)) or
+                        config['hosts'].get(find_element_by_name(element2))).get('name')
 
                 # Update YAML config with the names of the elements
                 if 'links' not in config:
@@ -264,6 +274,8 @@ class DragDropCanvas(tk.Canvas):
                 del config['routers'][self.selected_element]
             elif config['switches'] != None and self.selected_element in config['switches']:
                 del config['switches'][self.selected_element]
+            elif config['hosts'] != None and self.selected_element in config['hosts']:
+                del config['hosts'][self.selected_element]
             elif config['dns'] != None and self.selected_element in config['dns']:
                 del config['dns'][self.selected_element]
 
@@ -340,11 +352,13 @@ class DragDropCanvas(tk.Canvas):
                 element_type = "router"
             elif config['switches'] != None and find_element_by_name(self.selected_element) in config['switches']:
                 element_type = "switch"
+            elif config['hosts'] != None and find_element_by_name(self.selected_element) in config['hosts']:
+                element_type = "host"
             elif config['dns'] != None and find_element_by_name(self.selected_element) in config['dns']:
                 element_type = "dns"
             else:
                 return
-            if element_type in ('client', 'server', 'router'):
+            if element_type in ('client', 'server', 'router', 'host'):
                 element_data = config[element_type + 's'][find_element_by_name(self.selected_element)]
             elif element_type == 'switch':
                 element_data = config[element_type + 'es'][find_element_by_name(self.selected_element)]
@@ -694,6 +708,9 @@ class App(tk.Tk):
         self.add_router_button = tk.Button(self, text="Add Switch", command=self.add_switch)
         self.add_router_button.pack(side="left")
 
+        self.add_router_button = tk.Button(self, text="Add Host", command=self.add_host)
+        self.add_router_button.pack(side="left")
+
         self.add_router_button = tk.Button(self, text="Add DNS", command=self.add_dns)
         self.add_router_button.pack(side="left")
 
@@ -747,6 +764,14 @@ class App(tk.Tk):
         name = f"DNS{len(config['dns'])+1}"
         config['dns'][name] = {'name': name}
         self.canvas.add_element(name, "dns", 200, 50)
+    
+    def add_host(self):
+        """Add a new host"""
+        if 'hosts' not in config.keys():
+            config['hosts'] = {}
+        name = f"H{len(config['hosts'])+1}"
+        config['hosts'][name] = {'name': name}
+        self.canvas.add_element(name, "host", 200, 50)
 
     def on_close(self):
         """Print the final YAML when closing the window"""
@@ -802,6 +827,15 @@ if __name__ == "__main__":
                 i+=2
         except TypeError:
             print('No dns to configure')
+
+    if 'hosts' in config.keys():
+        try:
+            i=0
+            for host_name in config.get('hosts', {}):
+                app.canvas.add_element(config['hosts'][host_name]['name'], "host", 550, 50+i*50)
+                i+=2
+        except TypeError:
+            print('No host to configure')
             
     if 'links' in config.keys():
         try:

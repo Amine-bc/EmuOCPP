@@ -1,6 +1,6 @@
 from ipmininet.iptopo import IPTopo
 from ipmininet.host import IPHost
-from topologies.customHosts import Server, Client, name_generator
+from topologies.customHosts import Server, Client, DNS, name_generator
 
 import yaml
 
@@ -11,6 +11,7 @@ class CustomTopology(IPTopo):
         switches = {}
         servers = {}
         clients = {}
+        hosts = {}
         dns = {}
 
         with open(f'charging/ipmininet/topologies/customTopo_config.yaml', 'r') as file:
@@ -31,6 +32,14 @@ class CustomTopology(IPTopo):
                 for element in config['routers'][router]:
                     R[element] = config['routers'][router][element]
                 routers[R['name']] = self.addRouter(R['name'])
+            
+        if config['hosts'] != None:
+            # Add a hosts
+            for host in config['hosts']:
+                H = {}
+                for element in config['hosts'][host]:
+                    H[element] = config['hosts'][host][element]
+                hosts[H['name']] = self.addHost(H['name'])
         
         if config['servers'] != None:
             # Add server hosts
@@ -64,11 +73,11 @@ class CustomTopology(IPTopo):
                 D = {}
                 for element in config['dns'][dnsServer]:
                     D[element] = config["dns"][dnsServer][element]
-                dns[D['name']] = self.addHost(D['name'], cls=IPHost)
+                dns[D['name']] = self.addHost(D['name'], cls=DNS)
                     
              
         # Add links between the hosts and the switch
-        node_map = {**switches, **routers, **servers, **clients, **dns}
+        node_map = {**switches, **routers, **servers, **clients, **dns, **hosts}
 
         if config['links'] != None:
             for link in config['links']:

@@ -1,6 +1,6 @@
 clients:
   client0:
-    SecProfile: 3
+    SecProfile: '3'
     attempts: 2
     dns: DNS1
     name: CLI0
@@ -9,136 +9,7 @@ clients:
     - 1
     profiles:
       0:
-        SP: 3
-        ocpp_version: OCPP201
-      1:
-        SP: 3
-        ocpp_version: OCPP201
-    url: ocpp-emulator.com
-    version: v2.0.1
-    wait: '30'
-  client1:
-    SecProfile: 2
-    attempts: 2
-    dns: DNS1
-    name: CLI1
-    priority:
-    - 0
-    - 1
-    profiles:
-      0:
         SP: 2
-        ocpp_version: OCPP201
-      1:
-        SP: 2
-        ocpp_version: OCPP201
-    url: ocpp-emulator.com
-    version: v2.0.1
-    wait: '30'
-  client2:
-    SecProfile: 1
-    attempts: 2
-    dns: DNS1
-    name: CLI2
-    priority:
-    - 0
-    - 1
-    profiles:
-      0:
-        SP: 1
-        ocpp_version: OCPP20
-      1:
-        SP: 1
-        ocpp_version: OCPP20
-    url: ocpp-emulator.com
-    version: v2.0
-    wait: '30'
-  client3:
-    SecProfile: 2
-    attempts: 2
-    dns: DNS1
-    name: CLI3
-    priority:
-    - 0
-    - 1
-    profiles:
-      0:
-        SP: 2
-        ocpp_version: OCPP201
-      1:
-        SP: 2
-        ocpp_version: OCPP201
-    url: ocpp-emulator.com
-    version: v2.0.1
-    wait: '30'
-  client4:
-    SecProfile: 2
-    attempts: 2
-    dns: DNS1
-    name: CLI4
-    url: ocpp-emulator.com
-    version: v1.6
-  client5:
-    SecProfile: 1
-    attempts: 2
-    dns: DNS1
-    name: CLI5
-    url: ocpp-emulator.com
-    version: v1.6
-  client6:
-    SecProfile: 2
-    attempts: 2
-    dns: DNS1
-    name: CLI6
-    priority:
-    - 0
-    - 1
-    profiles:
-      0:
-        SP: 2
-        ocpp_version: OCPP201
-      1:
-        SP: 2
-        ocpp_version: OCPP201
-    url: ocpp-emulator.com
-    version: v2.0.1
-    wait: '30'
-  client7:
-    SecProfile: 2
-    attempts: 2
-    dns: DNS1
-    name: CLI7
-    url: ocpp-emulator.com
-    version: v1.6
-  client8:
-    SecProfile: 3
-    attempts: 2
-    dns: DNS1
-    name: CLI8
-    priority:
-    - 0
-    - 1
-    profiles:
-      0:
-        SP: 3
-        ocpp_version: OCPP20
-      1:
-        SP: 3
-        ocpp_version: OCPP20
-    url: ocpp-emulator.com
-    version: v2.0
-    wait: '30'
-  client9:
-    SecProfile: 3
-    attempts: 2
-    dns: DNS1
-    name: CLI9
-    priority:
-    - 0
-    - 1
-    profiles:
-      0:
-        SP: 3
         ocpp_version: OCPP201
       1:
         SP: 3
@@ -149,32 +20,13 @@ clients:
 dns:
   dns1:
     name: DNS1
+hosts:
+  H1:
+    name: H1
 links:
 - - CLI0
   - SW0
-- - CLI1
-  - SW0
-- - CLI2
-  - SW0
-- - CLI3
-  - SW0
-- - CLI4
-  - SW1
-- - CLI5
-  - SW1
-- - CLI6
-  - SW1
-- - CLI7
-  - SW1
-- - CLI8
-  - SW2
-- - CLI9
-  - SW2
 - - SW0
-  - R0
-- - SW1
-  - R0
-- - SW2
   - R0
 - - R0
   - RT
@@ -183,8 +35,8 @@ links:
 - - R0
   - RTes
 - - server0
-  - SW3
-- - SW3
+  - SW1
+- - SW1
   - R1
 - - R1
   - RT
@@ -198,6 +50,8 @@ links:
   - RTe
 - - DNS1
   - RTes
+- - H1
+  - R1
 routers:
   router0:
     name: R0
@@ -220,7 +74,3 @@ switches:
     name: SW0
   switch1:
     name: SW1
-  switch2:
-    name: SW2
-  switch3:
-    name: SW3

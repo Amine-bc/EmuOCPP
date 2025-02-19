@@ -10,6 +10,12 @@ class Server(IPHost):
         self.url = url
         self.dns = dns
 
+# Define a DNS host class
+class DNS(IPHost):
+    def __init__(self, name, **params):
+        super(DNS, self).__init__(name, **params)
+        self.type = 'dns'
+
 # Define a Client host class
 class Client(IPHost):
     def __init__(self, name, version, profile, SN, url = None, dns = None, **params):

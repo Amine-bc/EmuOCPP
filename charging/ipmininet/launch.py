@@ -89,12 +89,14 @@ def run_topology(topology_module_name):
     net.start()
 
     clients = []
+    hosts = []
 
     for host in net.hosts:
         try:
             if host.type == 'client':
                 clients.append(host)
         except:
+            hosts.append(host)
             continue
   
     remove_folders(clients)
@@ -196,9 +198,11 @@ def run_topology(topology_module_name):
                 if host.url == None:
                     print(f'Adding host because url = {host.url}')
                     serverIPs.append(host.defaultIntf().ip6)
+            elif host.type == 'dns':
+                print(f"Host {host.name} is a DNS with IPv6 {host.defaultIntf().ip6}")
+                dns.append(host)
         except AttributeError as e:
-            print(f"Host {host.name} is a DNS with IPv6 {host.defaultIntf().ip6}")
-            dns.append(host)
+            print(f"Host {host.name} is a host with IPv6 {host.defaultIntf().ip6}")
     
     for client in clients:
         if client.url == None:
@@ -217,6 +221,14 @@ def run_topology(topology_module_name):
             else:
                 makeTerm(node= server, title=f'{server.name}', cmd=f"echo 'Loading....'; sleep 25; ./venv/bin/python3 ./charging/server.py -config_file ./serverConfigs/{server.name}_config.yaml -iface {server.name}-eth0 -ports 9000 9001 9002 9003 9004 9005 9006 9007 -multiple {server.multiple} -dns {net.get(server.dns).defaultIntf().ip6} -url {server.url}; exec bash")
         
+        hostT = True #Set to True if you want a terminal displayed for each host
+
+        if hostT:
+            print('Launching HOSTS terminals')
+            for host in hosts:
+                makeTerm(node= host, title=f'{host.name}', cmd=f"bash -i")
+
+
         clientT = False #Set to True if you want a terminal displayed for each client
         if not clientT:
             print('Loading...')
