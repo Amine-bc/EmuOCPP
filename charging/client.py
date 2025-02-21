@@ -1045,14 +1045,16 @@ async def launch_client(
         if SECURITY_CTRL['BasicAuthPassword']:
             credentials = f'{SECURITY_CTRL['Identity']}:{SECURITY_CTRL['BasicAuthPassword']}'.encode('utf-8')
             credentials = base64.b64encode(credentials).decode('utf-8')
-   
-    headers = Headers({"Authorization": f'Basic {credentials}'})
 
     if VERSION == 'v1.6':
-        secProf =  CONFIGURATION['SecurityProfile']
+        secProf = CONFIGURATION['SecurityProfile']
     else:
         secProf = CONNECTION_PROFILES[index].security_profile
 
+    if secProf == 1 or secProf == 2:
+        headers = Headers({"Authorization": f'Basic {credentials}'})
+    else:
+        headers = None
 
     if secProf == 0:
         addr = f"ws://[{IP}]:{PORT4 if VERSION != 'v1.6' else PORT0}/{serial_number}" if VERSION == 'v1.6' else f"{CONNECTION_PROFILES[index].ocpp_csms_url}{SECURITY_CTRL['Identity']}"

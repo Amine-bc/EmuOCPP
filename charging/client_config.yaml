@@ -3,12 +3,12 @@ comm:
   HeartbeatInterval: 10
   MessageTimeout: 30
   NetworkConfigurationPriority:
-  - 2
   - 1
+  - 2
   - 0
   NetworkProfileConnectionAttempts: 2
   OfflineThreshold: 30
-ip: fc00:0:1::2
+ip: fe80::e3a6:46e4:bff9:fb8e%ens33
 model: E2507
 port0: 9000
 port1: 9001
@@ -21,27 +21,27 @@ port7: 9007
 profiles:
   0:
     SP: 1
-    ip: fc00:0:1::2
+    ip: fe80::e3a6:46e4:bff9:fb8e%ens33
     message_timeout: 30
-    ocpp_version: OCPP16
+    ocpp_version: OCPP201
   1:
     SP: 2
-    ip: fc00:0:1::2
+    ip: fe80::e3a6:46e4:bff9:fb8e%ens33
     message_timeout: 30
-    ocpp_version: OCPP16
+    ocpp_version: OCPP201
   2:
     SP: 3
-    ip: fc00:0:1::2
+    ip: fe80::e3a6:46e4:bff9:fb8e%ens33
     message_timeout: 30
-    ocpp_version: OCPP16
+    ocpp_version: OCPP201
 security:
   AdditionalRootCertificateCheck: false
-  BasicAuthPassword: 48504575664f347533494d6c3147
+  BasicAuthPassword: HPEufO4u3IMl1G
   CertSigningRepeatTimes: 2
   CertSigningWaitMinimum: 30
-  Identity: E2507-8420-1275
+  Identity: E2507-8420-1274
   OrganizationName: EmuOCPP
   SecurityProfile: 3
 url: null
 vendor_name: EmuOCPPCharge
-version: v1.6
+version: v2.0.1

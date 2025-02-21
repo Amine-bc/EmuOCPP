@@ -9,6 +9,11 @@ local f_payload = ProtoField.string("ocpp2.0.1.payload", "Payload (JSON)")
 local f_valid = ProtoField.bool("ocpp2.0.1.valid", "Valid?", base.NONE)
 local f_ipv6 = ProtoField.bool("ocpp2.0.1.ipv6", "IPv6?", base.NONE)
 
+local f_ipv6_expert = ProtoExpert.new("IPv6", "Expected IPv6, but packet is IPv4", expert.group.PROTOCOL, expert.severity.WARN)
+local f_valid_expert = ProtoExpert.new("OCPP_non_compliant", "OCPP non-compliant packet", expert.group.MALFORMED, expert.severity.ERROR)
+
+ocpp_proto.experts = { f_ipv6_expert, f_valid_expert }
+
 ocpp_proto.fields = {f_message_type, f_message_id, f_message_name, f_payload, f_valid, f_ipv6}
 
 local cjson = require("cjson")
@@ -90,7 +95,6 @@ function printTable(tbl, indent)
     end
 end
 
--- Call this function once during initialization
 print('************************2.0.1************************')
 load_schemas(os.getenv("HOME") .. "/Desktop/ocpp-simulator/venv/lib/python3.12/site-packages/ocpp/v201/schemas")
 printTable(schemas201)
@@ -231,9 +235,9 @@ function ocpp_proto.dissector(buffer, pinfo, tree)
     if not(message_type == 3) then
         message_name = cleanElement(elements[3]:gsub('^["\'](.-)["\']$', '%1'))
         print(string.format("Name: %s", tostring(message_name)))
-        json_data_str = cleanElement(elements[4]) -- The JSON object string
+        json_data_str = cleanElement(elements[4])
     else
-        json_data_str = cleanElement(elements[3]) -- The JSON object string
+        json_data_str = cleanElement(elements[3])
     end
 
     print(string.format("Data: %s", tostring(json_data_str)))
@@ -274,7 +278,10 @@ function ocpp_proto.dissector(buffer, pinfo, tree)
         
         -- Add elements to the tree
         subtree:add(f_valid, is_valid):set_hidden(true)
-        subtree:add(f_ipv6, ipv6):set_hidden(true)
+        if not ipv6 then
+            subtree:add(f_ipv6, false):set_hidden(true)
+            subtree:add_proto_expert_info(f_ipv6_expert)
+        end
         subtree:add(f_message_type, buffer(1, 1), message_type):append_text(" (2=Request, 3=Response, 4=Error)")
         subtree:add(f_message_id, buffer(3, #message_id), message_id)
         if not(message_type == 3) then 
@@ -317,7 +324,11 @@ function ocpp_proto.dissector(buffer, pinfo, tree)
         local subtree = tree:add(ocpp_proto, buffer(), "OCPP Non-Compliant Packet")
         subtree:add(ProtoField.string("ocpp2.0.1.error", "Error"), buffer(), tostring(validation_error))
         subtree:add(f_valid, is_valid):set_hidden(true)
-        subtree:add(f_ipv6, ipv6):set_hidden(true)
+        subtree:add_proto_expert_info(f_valid_expert)
+        if not ipv6 then
+            subtree:add(f_ipv6, false):set_hidden(true)
+            subtree:add_proto_expert_info(f_ipv6_expert)
+        end
     end
 end
 
