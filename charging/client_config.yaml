@@ -3,9 +3,9 @@ comm:
   HeartbeatInterval: 10
   MessageTimeout: 30
   NetworkConfigurationPriority:
+  - 0
   - 1
   - 2
-  - 0
   NetworkProfileConnectionAttempts: 2
   OfflineThreshold: 30
 ip: fe80::e3a6:46e4:bff9:fb8e%ens33
@@ -41,7 +41,7 @@ security:
   CertSigningWaitMinimum: 30
   Identity: E2507-8420-1274
   OrganizationName: EmuOCPP
-  SecurityProfile: 3
+  SecurityProfile: 1
 url: null
 vendor_name: EmuOCPPCharge
 version: v2.0.1

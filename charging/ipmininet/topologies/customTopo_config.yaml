@@ -1,6 +1,6 @@
 clients:
   client0:
-    SecProfile: '3'
+    SecProfile: 2
     attempts: 2
     dns: DNS1
     name: CLI0
@@ -12,7 +12,7 @@ clients:
         SP: 2
         ocpp_version: OCPP201
       1:
-        SP: 3
+        SP: 2
         ocpp_version: OCPP201
     url: ocpp-emulator.com
     version: v2.0.1
@@ -22,35 +22,21 @@ dns:
     name: DNS1
 hosts:
   H1:
-    name: H1
+    name: Attacker
 links:
 - - CLI0
   - SW0
 - - SW0
   - R0
-- - R0
-  - RT
-- - R0
-  - RTe
-- - R0
-  - RTes
 - - server0
   - SW1
 - - SW1
   - R1
-- - R1
-  - RT
-- - R1
-  - RTe
-- - R1
-  - RTes
-- - DNS1
-  - RT
-- - DNS1
-  - RTe
-- - DNS1
-  - RTes
-- - H1
+- - R0
+  - DNS1
+- - R0
+  - R1
+- - Attacker
   - R1
 routers:
   router0:
@@ -66,7 +52,7 @@ routers:
 servers:
   server0:
     dns: DNS1
-    multiple: 1
+    multiple: 2
     name: server0
     url: ocpp-emulator.com
 switches:
