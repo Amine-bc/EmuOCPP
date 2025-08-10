@@ -17,6 +17,8 @@ security profiles **1, 2, 3**.
 
 It has been tested on a Ubuntu 24.04.1 LTS running on a VMware Virtual Machine and Python 3.12.3.
 
+> **Related Tool:** For packet inspection and compliance validation, see [CheckOCPP](https://github.com/vfg27/CheckOCPP) — a Wireshark dissector for OCPP traffic. Together, **EmuOCPP** and **CheckOCPP** provide a complete toolkit for simulating, analyzing, and validating OCPP communications.
+
 ## Features
 
 * The emulation supports **OCPP Security Profile 1**, **OCPP Security Profile 2** and **OCPP Security Profile 3**. However, it can also be used without any Security Profile.
