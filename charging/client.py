@@ -1043,7 +1043,7 @@ async def launch_client(
             credentials = create_basic_auth64(serial_number, bytes(CONFIGURATION['AuthorizationKey'], 'utf-8'))
     else:
         if SECURITY_CTRL['BasicAuthPassword']:
-            credentials = f'{SECURITY_CTRL['Identity']}:{SECURITY_CTRL['BasicAuthPassword']}'.encode('utf-8')
+            credentials = f"{SECURITY_CTRL['Identity']}:{SECURITY_CTRL['BasicAuthPassword']}".encode('utf-8')
             credentials = base64.b64encode(credentials).decode('utf-8')
 
     if VERSION == 'v1.6':
