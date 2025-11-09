@@ -8,6 +8,9 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Optional, Callable, Awaitable, Dict, Any
 import base64
+#import logging
+#logging.basicConfig(level=logging.DEBUG)
+#logging.getLogger("websockets").setLevel(logging.DEBUG)
 
 import aioconsole
 import websockets
