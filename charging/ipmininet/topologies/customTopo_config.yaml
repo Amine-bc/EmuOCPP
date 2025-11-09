@@ -43,12 +43,6 @@ routers:
     name: R0
   router1:
     name: R1
-  routerT:
-    name: RT
-  routerTe:
-    name: RTe
-  routerTes:
-    name: RTes
 servers:
   server0:
     dns: DNS1
