@@ -49,9 +49,9 @@ if __name__ == '__main__':
 
     # Open xterm for each host
     input('Press any key to launch server, CSO and client...')
-    makeTerm(h3, title= 'Server',cmd="bash -c './venv/bin/python3 ./charging/server.py -iface h3-eth0; exec bash'") 
+    makeTerm(h3, title= 'Server',cmd="bash -c './venv/bin/python3 ./charging/server.py -iface h3-eth0 -config_file './mitm/server_config.yaml'; exec bash'") #fc00:0:1::1
     makeTerm(h4, title= 'CSO',cmd=f"bash -c 'echo Loading...; sleep 30; ./venv/bin/python3 ./charging/cso.py -server {h3.defaultIntf().ip6}; exec bash'") 
-    makeTerm(h1, title= 'Client',cmd=F"bash -c 'echo Loading...; sleep 30; ./venv/bin/python3 ./charging/client.py -server {h3.defaultIntf().ip6}; exec bash'")
+    makeTerm(h1, title= 'Client',cmd=F"bash -c 'echo Loading...; sleep 30; ./venv/bin/python3 ./charging/client.py -server {h3.defaultIntf().ip6} -config_file './mitm/client_config.yaml'; exec bash'")
     
     input('Press any key to launch attacker phase 1 when the CP is connected with the CSMS...')
     makeTerm(h2, title= 'NDP Spoof',cmd="bash -c 'bash ./mitm/prep.sh; parasite6 -l h2-eth0; exec bash'") 
