@@ -58,7 +58,7 @@ PORT5 = 9005
 PORT6 = 9006
 PORT7 = 9007
 URL = ''
-
+config = []
 # Holds ID and instance of all connected clients
 connected_clients = []
 
@@ -236,7 +236,7 @@ def load_config() -> bool:
 
         return True
 
-def load_address(interface:str = 'ens33'):
+def load_address(interface:str):
     try:
         addrs = netifaces.ifaddresses(interface)
         return addrs[netifaces.AF_INET6][0]['addr']
@@ -255,14 +255,14 @@ def register_with_dns(dns_server_ip, server_ip, port0, port1, port2, port3, port
 
 
 def configuration():
-
-    interface = args.iface if args.iface != None else 'ens33'
-    addr = load_address(interface = interface)
+    if args.iface != None:
+        interface = args.iface
+        addr = load_address(interface = interface) 
+        config['ip'] = addr
 
     with open(CONFIG_FILE, 'r') as file:
         config = yaml.safe_load(file)
 
-    config['ip'] = addr
     if args.ports:
         for i, port in enumerate(args.ports):
             config[f'port{i}'] = port
