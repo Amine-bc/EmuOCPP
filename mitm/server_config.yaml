@@ -13,7 +13,7 @@ accepted_tokens:
 - id_token: '1122334455667788'
   type: ISO15693
 dns: null
-ip: fc00:0:1::1%h3-eth0
+ip: fc00:0:1::1
 port0: 9000
 port1: 9001
 port2: 9002

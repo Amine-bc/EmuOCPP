@@ -58,7 +58,7 @@ PORT5 = 9005
 PORT6 = 9006
 PORT7 = 9007
 URL = ''
-config = []
+
 # Holds ID and instance of all connected clients
 connected_clients = []
 
@@ -255,14 +255,14 @@ def register_with_dns(dns_server_ip, server_ip, port0, port1, port2, port3, port
 
 
 def configuration():
-    if args.iface != None:
-        interface = args.iface
-        addr = load_address(interface = interface) 
-        config['ip'] = addr
+
+    interface = args.iface if args.iface != None else 'ens33'
+    addr = load_address(interface = interface)
 
     with open(CONFIG_FILE, 'r') as file:
         config = yaml.safe_load(file)
 
+    config['ip'] = addr
     if args.ports:
         for i, port in enumerate(args.ports):
             config[f'port{i}'] = port
@@ -1012,7 +1012,7 @@ def load_certificate(cert_path):
     # Read the certificate from the file
     with open(cert_path, 'r') as cert_file:
         cert_data = cert_file.read()
-    # Ensure the certificate length is within the allowed bounds
+    # Ensure the certificate length is within the allowed bounds 
     if len(cert_data) > 5500:
         raise ValueError("Certificate exceeds maximum allowed length (5500 characters).")
     return cert_data
@@ -1027,9 +1027,9 @@ async def on_operator(websocket, path):
         elif message.startswith("install"):
             order, serial = message.split(' ')
             var = False
-            for cp_id, csms_ws, version in connected_clients:
+            for cp_id, cp_ws, version in connected_clients:
                 if cp_id == serial:
-                    res = await csms_ws.send_install_certificate('CSMSRootCertificate' if version != 'v1.6' else 'CentralSystemRootCertificate', load_certificate('./charging/installedCertificates/server/root/emuocpp_ttp_cert.pem'), version)
+                    res = await cp_ws.send_install_certificate('CSMSRootCertificate' if version != 'v1.6' else 'CentralSystemRootCertificate', load_certificate('./charging/installedCertificates/server/root/emuocpp_ttp_cert.pem'), version)
                     if res:
                         await websocket.send(f"Certificate installed into: {serial}")
                     else:
@@ -1044,7 +1044,7 @@ async def on_operator(websocket, path):
             serial = messageParts[1]
             variables = messageParts[2:]
             var = False
-            for cp_id, csms_ws, version in connected_clients:
+            for cp_id, cp_ws, version in connected_clients:
                 if cp_id == serial:
                     vars = []
                     for variable in variables:
@@ -1060,9 +1060,9 @@ async def on_operator(websocket, path):
                         else:
                             vars.append(variable)
                     if version != 'v1.6':
-                        response = await csms_ws.send_get_variable(version= version, data201= vars)
+                        response = await cp_ws.send_get_variable(version= version, data201= vars)
                     else:
-                        response = await csms_ws.send_get_variable(version= version, data16= vars)
+                        response = await cp_ws.send_get_variable(version= version, data16= vars)
                     await websocket.send(f"Data: {response}")
                     var = True
                 if var:
@@ -1075,9 +1075,9 @@ async def on_operator(websocket, path):
             serial = messageParts[1]
             variables = messageParts[2:]
             var = False
-            for cp_id, csms_ws, version in connected_clients:
+            for cp_id, cp_ws, version in connected_clients:
                 if cp_id == serial:
-                    res = await csms_ws.send_set_network(version= version, slot=int(variables[0]), data=data201.NetworkConnectionProfileType(ocpp_version='OCPP16' if version == 'v1.6' else 'OCPP20', ocpp_transport= "JSON", ocpp_csms_url=IP, message_timeout=30, security_profile=int(variables[1]), ocpp_interface=enums201.OCPPInterfaceType.wireless0.value))
+                    res = await cp_ws.send_set_network(version= version, slot=int(variables[0]), data=data201.NetworkConnectionProfileType(ocpp_version='OCPP16' if version == 'v1.6' else 'OCPP20', ocpp_transport= "JSON", ocpp_csms_url=IP, message_timeout=30, security_profile=int(variables[1]), ocpp_interface=enums201.OCPPInterfaceType.wireless0.value))
                     if res:
                         await websocket.send(f"NetworkProfile set into: {serial}")
                     else:
@@ -1093,7 +1093,7 @@ async def on_operator(websocket, path):
             variables = messageParts[2:]
             var = False
             dataList = []
-            for cp_id, csms_ws, version in connected_clients:
+            for cp_id, cp_ws, version in connected_clients:
                 if cp_id == serial:
                     for element in variables:
                         variable = ast.literal_eval(element)[0]
@@ -1106,7 +1106,7 @@ async def on_operator(websocket, path):
                             dataList.append(data201.SetVariableDataType(component=component, variable={"name": variable}, attribute_value=str(data)))
                         else:
                             dataList.append([variable, data])
-                    res = await csms_ws.send_set_variable(version= version, data=dataList)
+                    res = await cp_ws.send_set_variable(version= version, data=dataList)
                     if res:
                         await websocket.send(f"{res}")
                     else:
@@ -1121,9 +1121,9 @@ async def on_operator(websocket, path):
             serial = messageParts[1]
             reason = messageParts[2]
             var = False
-            for cp_id, csms_ws, version in connected_clients:
+            for cp_id, cp_ws, version in connected_clients:
                 if cp_id == serial:
-                    res = await csms_ws.send_trigger_message(version= version, reason = reason)
+                    res = await cp_ws.send_trigger_message(version= version, reason = reason)
                     if res:
                         await websocket.send(f"Trigger message accepted")
                     else:
@@ -1148,7 +1148,7 @@ async def on_connect(websocket, path):
         else:
             def get_data_from_cert(cert_pem):
                 res = {}
-                for element in cert_pem['subject']:
+                for element in client_cert_der['subject']:
                     for name, data in element:
                         if name == 'commonName':
                             res['commonName'] = data
@@ -1190,27 +1190,27 @@ async def on_connect(websocket, path):
     # Initialize CP
 
     ChargePointServer = ChargePointServerFactory(VERSION)
-    csms = ChargePointServer(charge_point_id, websocket)
+    cp = ChargePointServer(charge_point_id, websocket)
     added = False
     # If only one CP per id is allowed, check it doesn't exist
-    for cp_id, csms_ws, version in connected_clients:
+    for cp_id, cp_ws, version in connected_clients:
         if cp_id == charge_point_id:
             if ALLOW_MULTIPLE_SERIAL_NUMBERS == 0:
                 logging.error(f"Client tried to connect with ID {cp_id}, but another client already exists")
                 return await websocket.close()
             elif ALLOW_MULTIPLE_SERIAL_NUMBERS == 1:
                 logging.info(f'Client duplicated detected with ID {cp_id}')
-                connected_clients.append((charge_point_id, csms, VERSION))
+                connected_clients.append((charge_point_id, cp, VERSION))
                 added = True
                 break
             elif ALLOW_MULTIPLE_SERIAL_NUMBERS == 2:
                 logging.info(f'Client duplicated detected with ID {cp_id}\nClosing previous connection...')
-                connected_clients.remove((cp_id, csms_ws, version))
-                await csms_ws._connection.close()
-                connected_clients.append((charge_point_id, csms, VERSION))
+                connected_clients.remove((cp_id, cp_ws, version))
+                await cp_ws._connection.close()
+                connected_clients.append((charge_point_id, cp, VERSION))
                 added = True
     if not added:
-        connected_clients.append((charge_point_id, csms, VERSION))
+        connected_clients.append((charge_point_id, cp, VERSION))
 
 
     if len(connected_clients) >= MAX_CONNECTED_CLIENTS:
@@ -1219,12 +1219,12 @@ async def on_connect(websocket, path):
 
     # Start and await for disconnection
     try:
-        await asyncio.gather(csms.start(), csms._check_reservations(), csms._check_events())
+        await asyncio.gather(cp.start(), cp._check_reservations(), cp._check_events())
     except websockets.exceptions.ConnectionClosed:
         logging.info(f"Client {charge_point_id} disconnected")
-        if (charge_point_id, csms, VERSION) in connected_clients:
+        if (charge_point_id, cp, VERSION) in connected_clients:
             # Remove from list of connected clients
-            connected_clients.remove((charge_point_id, csms, VERSION))
+            connected_clients.remove((charge_point_id, cp, VERSION))
     except Exception as e:
         print(e)
 

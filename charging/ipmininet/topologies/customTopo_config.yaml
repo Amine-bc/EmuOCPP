@@ -1,6 +1,6 @@
 clients:
   client0:
-    SecProfile: 2
+    SecProfile: '2'
     attempts: 2
     dns: DNS1
     name: CLI0
